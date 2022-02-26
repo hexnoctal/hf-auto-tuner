@@ -1,0 +1,147 @@
+<html>
+<head>
+<title>TUNER</title>
+<link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+<style>
+
+body {
+  background-color: white;
+}
+
+.button {
+  background-color: gray; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+table, th, td {
+  border: 0px;
+  width: 50%;
+  align: left;
+
+}
+</style>
+</head>
+<body>
+
+<button class="button" id="ant1" onclick="setPort(1)">Ant 1&nbsp;</button>
+<button class="button" id="ant2" onclick="setPort(2)">Ant 2&nbsp;</button>
+<button class="button" id="ant3" onclick="setPort(3)">Ant 3&nbsp;</button>
+<button class="button" id="auto" onclick="setMode('auto')">Auto&nbsp;</button>
+<button class="button" id="bypass" onclick="setMode('bypass')">Bypass</button>
+
+<br><br>
+<div style="font-family: 'Orbitron', sans-serif; font-size: 28px">
+
+	<table>
+		<tr>
+			<td>Frequency</td>
+			<td><div id="frequency"></div></td>
+		</tr>
+		<tr>
+			<td>VSWR</td>
+			<td><div id="vswr"></div></td>
+		</tr>
+		<tr>
+			<td>Power</td>
+			<td><div id="power"></div></td>
+		</tr>
+		<tr>
+			<td>Capacitance</td>
+			<td><div id="capacitance"></div></td>
+		</tr>
+		<tr>
+			<td>Inductance</td>
+			<td><div id="inductance"></div></td>
+		</tr>
+        </table>
+</div>
+</body>
+</html>
+
+<script>
+
+function update(b) {
+    var tuner = JSON.parse(b);
+    var lit = "#06c436";
+    var dark = "#747875";
+    var active = "#de0723"
+
+//    document.getElementById("frequency").innerHTML=tuner.frequency;
+	console.log(tuner.port)
+	switch(tuner.port){
+	    case 1:
+	        document.getElementById("ant1").style.background=lit;
+		document.getElementById("ant2").style.background=dark;
+		document.getElementById("ant3").style.background=dark;
+		break;
+	    case 2:
+	        document.getElementById("ant1").style.background=dark;
+		document.getElementById("ant2").style.background=lit;
+		document.getElementById("ant3").style.background=dark;
+		break;
+	    case 3:
+	        document.getElementById("ant1").style.background=dark;
+		document.getElementById("ant2").style.background=dark;
+		document.getElementById("ant3").style.background=lit;
+		break;
+
+	}
+	if(tuner.auto == 1){
+		document.getElementById("auto").style.background=active;
+	}
+	else{
+		document.getElementById("auto").style.background=dark;
+	}
+
+	if(tuner.bypass == 1){
+		document.getElementById("bypass").style.background=active;
+	}
+	else{
+		document.getElementById("bypass").style.background=dark;
+	}
+        document.getElementById("frequency").innerHTML=tuner.frequency;
+        document.getElementById("power").innerHTML=tuner.power;
+        document.getElementById("capacitance").innerHTML=tuner.capacitance;
+        document.getElementById("vswr").innerHTML=tuner.vswr;
+	document.getElementById("inductance").innerHTML=tuner.inductance;
+}
+
+function timed() {
+    getPromise("http://{{host}}/api/v1.0/status")
+    
+}
+
+function setPort(port){
+    getPromise("http:///{{host}}/api/v1.0/set?port="+port)
+}
+
+function setMode(mode){
+    getPromise("http://{{host}}/api/v1.0/set?mode="+mode)
+}
+
+function getPromise(URL) {
+  let promise = new Promise(function (resolve, reject) {
+    let req = new XMLHttpRequest();
+    req.open("GET", URL);
+    req.onload = function () {
+      if (req.status == 200) {
+        resolve(req.response);
+	console.log(req.responseText)
+	update(req.responseText)
+      } else {
+        reject("fail");
+      }
+    };
+    req.send();
+  });
+  
+  return promise;
+}
+window.setInterval(timed,1000)
+</script>
