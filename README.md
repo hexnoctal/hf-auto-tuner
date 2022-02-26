@@ -92,7 +92,7 @@ This device requires 4800-N-2 serial settings.  It streams a 12 byte status fram
 04 - Capacitance  
 05 - ?? bit packed with antenna port. Port is highest two bits of lowest byte  
 06 - Inductance  
-08 - Power (likely low word)
+08 - Power (likely low word)  
 09 - Power high word (untested but likely)  
 10 - VSWR high word  
 11 - VSWR low word  
